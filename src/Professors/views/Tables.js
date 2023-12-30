@@ -7,9 +7,21 @@ function Tables() {
   const [students, setStudents] = useState([]);
   const [newStudent, setNewStudent] = useState({ userName: '', firstName: '', lastName: '', number: '' });
   const [editingStudent, setEditingStudent] = useState(null);
+  const [studentPWs, setStudentPWs] = useState([]);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const filteredPWs = studentPWs.filter((studentPW) => studentPW.student.id === parseInt(selectedStudent, 10));
+
+
+
+  const handleStudentSelect = (studentId) => {
+    setSelectedStudent(studentId);
+  };
+ 
 
   useEffect(() => {
     fetchStudents();
+    fetchStudentPWs(); // Appel pour récupérer les données des relations StudentPW
+    //fetchStudents();
   }, []);
 
   const fetchStudents = async () => {
@@ -72,6 +84,58 @@ function Tables() {
     }
   };
 
+  
+  
+    const [student, setStudent] = useState([]);
+
+
+
+ 
+
+    const fetchStudentPWs = async () => {
+      try {
+        const response = await axios.get('https://joyous-ocean-production.up.railway.app/api/students/pws');
+        console.log('Fetched StudentPWs:', response.data); // Add this log
+        setStudentPWs(response.data);
+      } catch (error) {
+        console.error('Error fetching StudentPWs:', error);
+      }
+    };
+    
+    
+    useEffect(() => {
+      console.log('Students:', students);
+    }, [students]);
+    
+    useEffect(() => {
+      console.log('StudentPWs:', studentPWs);
+    }, [studentPWs]);
+  
+  
+    const renderStudentPWs = () => {
+      if (selectedStudent !== null) {
+        console.log('Selected Student:', selectedStudent);
+        console.log('All Student PWs:', studentPWs);
+    
+        const filteredPWs = studentPWs.filter((studentPW) => studentPW.student.id === parseInt(selectedStudent, 10));
+        console.log('Filtered PWs:', filteredPWs);
+    
+        return (
+          <div>
+            {filteredPWs.map((studentPW) => (
+              <div key={studentPW.id}>
+                <p>Title: {studentPW.pw.titre}</p>
+                <p>Objectif: {studentPW.pw.objectif}</p>
+                <hr />
+              </div>
+            ))}
+          </div>
+        );
+      }
+      return null;
+    };
+    
+
   return (
     <>
       <div className="content">
@@ -132,11 +196,33 @@ function Tables() {
                     ))}
                   </tbody>
                 </Table>
+
+                <div>
+          <h3>Student PWs:</h3>
+                <Label for="studentDropdown">Select Student:</Label>
+                <Input
+                  type="select"
+                  name="studentDropdown"
+                  id="studentDropdown"
+                  value={selectedStudent}
+                  onChange={(e) => handleStudentSelect(e.target.value)}
+                >
+                  <option value="" disabled>Select a student</option>
+                  {students.map((student) => (
+                    <option key={student.id} value={student.id}>
+                      {`${student.firstName} ${student.lastName}`}
+                    </option>
+                  ))}
+                </Input>
+                {renderStudentPWs()}
+              </div>
               </CardBody>
             </Card>
           </Col>
           <Col md="12">
-            {/* Your other table */}
+          <CardBody>
+        
+                </CardBody>
           </Col>
         </Row>
       </div>
