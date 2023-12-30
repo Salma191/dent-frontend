@@ -11,7 +11,7 @@ const Icons = () => {
 
   const chargerGroupes = useCallback(async () => {
     try {
-      const response = await axios.get('http://joyous-ocean-production.up.railway.app/api/groupes');
+      const response = await axios.get('https://joyous-ocean-production.up.railway.app/api/groupes');
       setGroupes(response.data);
     } catch (error) {
       console.error('Error fetching groupes:', error);
@@ -28,7 +28,7 @@ const Icons = () => {
 
   const creerGroupe = async () => {
     try {
-      const response = await axios.post('http://joyous-ocean-production.up.railway.app/api/groupes', {
+      const response = await axios.post('https://joyous-ocean-production.up.railway.app/api/groupes', {
         code: nouveauCode,
         year: nouveauYear,
       });

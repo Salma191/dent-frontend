@@ -52,7 +52,7 @@ const Dashboard = ({ onLogout }) => {
       try {
         const userId = localStorage.getItem('userId');
         if (userId) {
-          const response = await fetch(`http://joyous-ocean-production.up.railway.app/api/professors/${userId}`);
+          const response = await fetch(`https://joyous-ocean-production.up.railway.app/api/professors/${userId}`);
           if (response.ok) {
             const userData = await response.json();
             setUser(userData);
