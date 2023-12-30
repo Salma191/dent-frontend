@@ -14,6 +14,10 @@ function PWManagement() {
   const [formDataT, setFormDataT] = useState({ name: '' });
   const [groupOptions, setGroupOptions] = useState([]);
   const [formDataG, setFormDataG] = useState({ name: '' });
+  const [groupPasswords, setGroupPasswords] = useState([]);
+
+ 
+  
 
   useEffect(() => {
     fetchPWs();
@@ -21,27 +25,34 @@ function PWManagement() {
   }, []);
 
   const fetchPWs = async () => {
-    try {
-      const response = await axios.get('https://joyous-ocean-production.up.railway.app/api/pws');
-      setPWs(response.data);
+  try {
+    const response = await axios.get('https://joyous-ocean-production.up.railway.app/api/pws');
+    setPWs(response.data);
 
-      // Update groupedPWs
-      const updatedGroupedPWs = {};
-      response.data.forEach(pw => {
-        if (pw.groupIds) {
-          pw.groupIds.forEach(groupId => {
-            if (!updatedGroupedPWs[groupId]) {
-              updatedGroupedPWs[groupId] = [];
-            }
-            updatedGroupedPWs[groupId].push(pw);
-          });
-        }
-      });
-      setGroupedPWs(updatedGroupedPWs);
-    } catch (error) {
-      console.error('Error fetching PWs:', error);
+    // Update groupedPWs
+    const updatedGroupedPWs = {};
+    response.data.forEach(pw => {
+      if (pw.groupIds) {
+        pw.groupIds.forEach(groupId => {
+          if (!updatedGroupedPWs[groupId]) {
+            updatedGroupedPWs[groupId] = [];
+          }
+          updatedGroupedPWs[groupId].push(pw);
+        });
+      }
+    });
+    setGroupedPWs(updatedGroupedPWs);
+
+    // Update groupPasswords for the selected group
+    if (selectedGroupId) {
+      const passwordsForSelectedGroup = updatedGroupedPWs[selectedGroupId] || [];
+      setGroupPasswords(passwordsForSelectedGroup);
     }
-  };
+  } catch (error) {
+    console.error('Error fetching PWs:', error);
+  }
+};
+
 
   const fetchGroups = async () => {
     try {
@@ -51,6 +62,9 @@ function PWManagement() {
       console.error('Error fetching groups:', error);
     }
   };
+  
+
+  
 
   useEffect(() => {
     // Récupérer les données des dents depuis la base de données
@@ -84,7 +98,7 @@ function PWManagement() {
 
       if (formData.id) {
         // Update PW
-        await axios.put(`https://joyous-ocean-production.up.railway.app/api/pws/${formData.id}`, pwData);
+        await axios.put('https://joyous-ocean-production.up.railway.app/api/pws/${formData.id}', pwData);
       } else {
         // Create new PW
         const response = await axios.post('https://joyous-ocean-production.up.railway.app/api/pws', pwData);
@@ -113,7 +127,7 @@ function PWManagement() {
 
   const deletePW = async (id) => {
     try {
-      await axios.delete('https://joyous-ocean-production.up.railway.app/api/pws/${id}');
+      await axios.delete('hhttps://joyous-ocean-production.up.railway.app/api/pws/${id}');
       fetchPWs();
     } catch (error) {
       console.error('Error deleting PW:', error);
@@ -152,12 +166,20 @@ function PWManagement() {
 
   const columns = [
     {
-      name: 'Name',
-      selector: 'name',
+      name: 'Titre',
+      selector: 'titre',
       sortable: true,
     },{
-      name: 'Tooth', // Nom de la colonne
-      selector: 'toothName', // Nom du champ dans vos données
+      name: 'Objectif',
+      selector: 'objectif',
+      sortable: true,
+    },{
+      name: 'Docs',
+      selector: 'docs',
+      sortable: true,
+    },{
+      name: 'Tooth',
+      selector: 'toothName',
       sortable: true,
     },
     {
@@ -178,6 +200,10 @@ function PWManagement() {
 
   const handleGroupSelectionChange = (groupId) => {
     setSelectedGroupId(groupId);
+  
+    // Update groupPasswords for the selected group
+    const passwordsForSelectedGroup = groupedPWs[groupId] || [];
+    setGroupPasswords(passwordsForSelectedGroup);
   };
 
   const handlePWSelectionChange = (pwId) => {
@@ -193,7 +219,7 @@ function PWManagement() {
       }
 
       // Effectuez l'appel HTTP pour ajouter le pw au groupe
-      await axios.post('https://joyous-ocean-production.up.railway.app/api/groupes/${selectedGroupId}/add-pw/${selectedPWId}');
+      await axios.post(`https://joyous-ocean-production.up.railway.app/api/groupes/${selectedGroupId}/add-pw/${selectedPWId}`);
 
       // Mettez à jour les données après l'ajout
       fetchPWs(); // Mettez à jour la liste des mots de passe
@@ -234,11 +260,29 @@ function PWManagement() {
                 <CardBody>
                   <form>
                     <label>
-                      PW Name:
+                      PW Title:
                       <input
                           type="text"
                           name="name"
-                          value={formData.name}
+                          value={formData.titre}
+                          onChange={handleInputChange}
+                      />
+                    </label>
+                    <label>
+                      PW Objectif:
+                      <input
+                          type="text"
+                          name="name"
+                          value={formData.objectif}
+                          onChange={handleInputChange}
+                      />
+                    </label>
+                    <label>
+                      PW Docs:
+                      <input
+                          type="text"
+                          name="name"
+                          value={formData.docs}
                           onChange={handleInputChange}
                       />
                     </label>
@@ -276,20 +320,8 @@ function PWManagement() {
                         ))}
                       </select>
                     </label>
-                    {/*<div>*/}
-                    {/*  Assign to Groups:*/}
-                    {/*  {groups.map(group => (*/}
-                    {/*      <label key={group.id}>*/}
-                    {/*        <input*/}
-                    {/*            type="checkbox"*/}
-                    {/*            value={group.id}*/}
-                    {/*            checked={formData.groupIds.includes(group.id)}*/}
-                    {/*            onChange={() => handleGroupCheckboxChange(group.id)}*/}
-                    {/*        />*/}
-                    {/*        {group.code}*/}
-                    {/*      </label>*/}
-                    {/*  ))}*/}
-                    {/*</div>*/}
+                  
+                    
                     <button type="button" onClick={createOrUpdatePW}>
                       {formData.id ? 'Update PW' : 'Add PW'}
                     </button>
@@ -297,7 +329,6 @@ function PWManagement() {
 
                   <DataTable
 
-                      title="PWs"
                       columns={columns}
                       data={pws}
                       pagination
@@ -305,8 +336,9 @@ function PWManagement() {
                       className="table table-striped table-bordered"
                   />
 
-                  <div>
-                    <h4>Assign Passwords to Groups:</h4>
+
+                  <div className='content'>
+                    <h4>Assign PWs to Groups:</h4>
 
 
                     <div className="mb-2">
@@ -323,51 +355,35 @@ function PWManagement() {
                       </select>
                     </div>
                     <div className="mb-2">
-                      <label className="me-2">Select PW:</label>
-                      <select
-                          className="form-select"
-                          value={selectedPWId || ''}
-                          onChange={(e) => handlePWSelectionChange(e.target.value)}
-                      >
-                        <option value={null}>Select Password</option>
-                        {pws.map(pw => (
-                            <option key={pw.id} value={pw.id}>{pw.name}</option>
-                        ))}
-                      </select>
-                    </div>
+  <label className="me-2">Select PW:</label>
+  <select
+    className="form-select"
+    value={selectedPWId || ''}
+    onChange={(e) => handlePWSelectionChange(e.target.value)}
+  >
+    <option value={null}>Select PW</option>
+    {pws.map(pw => (
+      <option key={pw.id} value={pw.id}>{pw.titre}</option>
+    ))}
+  </select>
+</div>
+
                     <div>
                       <button
                           type="button"
                           className="btn btn-primary me-2"
                           onClick={() => {
-                            createOrUpdatePW(); // Create or update PW
+                          
                             addPWToGroup(); // Assign password to group
                           }}
                       >
-                        Add Password
+                        Add PW
                       </button>
 
                     </div>
-                  </div>
-                  <div>
-                    <h4>Assigned PWs to Groups:</h4>
-                    {groups.map(group => (
-                        <div key={group.id} className="mb-3">
-                          <h5>{group.code}:</h5>
-                          {groupedPWs[group.id] && groupedPWs[group.id].length > 0 ? (
-                              <ul>
-                                {groupedPWs[group.id].map(pw => (
-                                    <li key={pw.id}>{pw.name}</li>
-                                ))}
-                              </ul>
-                          ) : (
-                              <p>None</p>
-                          )}
-                        </div>
-                    ))}
-                  </div>
 
-
+                  
+                  </div>
                 </CardBody>
               </Card>
             </Col>
