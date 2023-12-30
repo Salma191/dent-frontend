@@ -52,7 +52,7 @@ const Dashboard = ({ onLogout }) => {
       try {
         const userId = localStorage.getItem('userId');
         if (userId) {
-          const response = await fetch(`https://joyous-ocean-production.up.railway.app/api/professors/${userId}`);
+          const response = await fetch(`http://localhost:8082/api/professors/${userId}`);
           if (response.ok) {
             const userData = await response.json();
             setUser(userData);
@@ -130,20 +130,20 @@ const Dashboard = ({ onLogout }) => {
                 <Row>
                   <Col className="ml-auto" lg="3" md="6" xs="6">
                     <h5>
-                      12 <br />
-                      <small>Files</small>
+                      2 <br />
+                      <small>Group</small>
                     </h5>
                   </Col>
                   <Col className="ml-auto mr-auto" lg="4" md="6" xs="6">
                     <h5>
-                      2GB <br />
-                      <small>Used</small>
+                      3 <br />
+                      <small>Student</small>
                     </h5>
                   </Col>
                   <Col className="mr-auto" lg="3">
                     <h5>
-                      24,6$ <br />
-                      <small>Spent</small>
+                      3 <br />
+                      <small>PW</small>
                     </h5>
                   </Col>
                 </Row>
